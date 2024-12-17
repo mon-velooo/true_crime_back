@@ -47,8 +47,14 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const athlete = await service.getCrimeById(id);
-    res.status(200).send(athlete);
+    const crime = await service.getCrimeById(id);
+
+    if (!crime) {
+      res.status(404).send({ error: "Crime not found" });
+      return;
+    }
+
+    res.status(200).send(crime);
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
