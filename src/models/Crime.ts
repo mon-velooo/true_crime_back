@@ -17,10 +17,10 @@ export class Crime {
   @Column({ type: "time", precision: 0 })
   start_time: string;
 
-  @Column({ type: "date", nullable:true })
+  @Column({ type: "date", nullable: true })
   end_date: string;
 
-  @Column({ type: "time", precision: 0, nullable:true })
+  @Column({ type: "time", precision: 0, nullable: true })
   end_time: string;
 
   @Column({ type: "double precision" })
@@ -29,19 +29,30 @@ export class Crime {
   @Column({ type: "double precision" })
   longitude: number;
 
+  @Column({
+    type: "geography",
+    nullable: false,
+    spatialFeatureType: "Point",
+    srid: 4326,
+  })
+  location: string;
+
   @Column({ type: "text" })
   description: string;
 
-  @ManyToOne(() => District, (district) => district.id, {nullable:true})
+  @ManyToOne(() => District, (district) => district.id, { nullable: true })
   district: District;
 
   @ManyToOne(
     () => LocationDescription,
-    (locationDescription) => locationDescription.id, {nullable:true}
+    (locationDescription) => locationDescription.id,
+    { nullable: true }
   )
   locationDescription: LocationDescription;
 
-  @ManyToOne(() => LocationType, (locationType) => locationType.id, {nullable:true})
+  @ManyToOne(() => LocationType, (locationType) => locationType.id, {
+    nullable: true,
+  })
   locationType: LocationType;
 
   @ManyToOne(() => Person, (person) => person.id)

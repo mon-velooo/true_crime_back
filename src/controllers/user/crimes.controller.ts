@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const where: any = {};
     const select: (keyof Crime)[] = [
       "id",
       "latitude",
@@ -14,18 +13,34 @@ router.get("/", async (req: Request, res: Response) => {
       "start_date",
       "end_date",
     ];
-    // const filters = req.query;
+    const { longitude, lattitude, radius, lawCategory } = req.query;
 
-    // Filter
-    // if (filters.fullname) {
-    //   where.fullname = ILike(`%${filters.fullname}%`);
-    // }
-    // if (filters.roleId) {
-    //   where.role = { id: filters.roleId };
-    // }
-    // if (filters.isConnected === "true" || filters.isConnected === "false") {
-    //   where.isConnected = filters.isConnected.toUpperCase();
-    // }
+    if (!longitude || !lattitude || !radius) {
+      return res.status(400).send({
+        error: "Params wanted not provided: longitude, lattitude, radius",
+      });
+    }
+
+    const longitudeFloat = parseFloat(longitude as string);
+    const lattitudeFloat = parseFloat(lattitude as string);
+    const radiusFloat = parseFloat(radius as string);
+
+    const radiusInMeters = radiusFloat * 1000;
+
+    const filters = {
+      lawCategory: lawCategory
+        ? parseInt(lawCategory as string, 10)
+        : undefined,
+      // Ajoutez d'autres filtres ici si nécessaire
+    };
+
+    const crimes = await service.getCrimes(
+      select,
+      longitudeFloat,
+      lattitudeFloat,
+      radiusInMeters,
+      filters
+    );
 
     // const sortableKey = [
     //   { paramsKey: "fullname", accessKey: "fullname" },
@@ -35,8 +50,6 @@ router.get("/", async (req: Request, res: Response) => {
     // ];
 
     // const { order } = extractSortsFromFilters(req, sortableKey);
-
-    const crimes = await service.getCrimes(where, select);
 
     res.status(200).send({ crimes });
   } catch (error) {
@@ -59,5 +72,14 @@ router.get("/:id", async (req: Request, res: Response) => {
     res.status(500).send({ error: "An error occurred" });
   }
 });
+
+// router.get("/typeStats", async (req: Request, res: Response) => {
+//   try {
+//     const criminalTypeStats = await service.getTypeStats();
+//     res.status(200).send(criminalTypeStats);
+//   } catch (error) {
+//     res.status(500).send({ error: "An error occurred" });
+//   }
+// });
 
 export default router;

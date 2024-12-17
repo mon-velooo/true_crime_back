@@ -42,6 +42,7 @@ import userRouter from "./routes/user.routes";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { RoleEnum } from "./enums/RoleEnum";
 import { fetchData, client } from "./database/insertData";
+import { Crime } from "./models/Crime";
 
 const app = express();
 
@@ -69,13 +70,19 @@ async function bootstrap(): Promise<void> {
     const server = app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
-    console.log("Import data...")
-    // Lancer la récupération et l'insertion des données
-    client.connect();
-    fetchData().finally(() => {
-      client.end();
-      console.log("Data imported with success")
-    });
+    // Vérifier si la base de données est déjà peuplée
+    const crimeCount = await AppDataSource.getRepository(Crime).count();
+    if (crimeCount === 0) {
+      console.log("Import data...");
+      // Lancer la récupération et l'insertion des données
+      client.connect();
+      await fetchData().finally(() => {
+        client.end();
+        console.log("Data imported with success");
+      });
+    } else {
+      console.log("Data already exists, skipping import.");
+    }
   } catch (error) {
     console.log("DB connexion failed");
     console.log(error);
