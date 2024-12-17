@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Crime } from "./Crime";
 
 @Entity()
 export class LocationDescription {
@@ -7,4 +8,7 @@ export class LocationDescription {
 
   @Column({ type: "varchar", length: 100, unique: true })
   description: string;
+
+  @OneToMany(() => Crime, (crime) => crime.id, {})
+  crimes: Crime[];
 }

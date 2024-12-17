@@ -6,7 +6,7 @@ import { Gender } from "../models/Gender";
 import { Person } from "../models/Person";
 import { LawCategory } from "../models/LawCategory";
 import { LocationDescription } from "../models/LocationDescription";
-import { LocationTypes } from "../models/LocationType";
+import { LocationType } from "../models/LocationType";
 import { Status } from "../models/Status";
 import { AgeGroup } from "../models/AgeGroup";
 import { Crime } from "../models/Crime";
@@ -28,7 +28,7 @@ export const AppDataSource = new DataSource({
     Person,
     LawCategory,
     LocationDescription,
-    LocationTypes,
+    LocationType,
     Role,
     Status,
     User,

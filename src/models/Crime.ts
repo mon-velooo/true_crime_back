@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { District } from "./District";
+import { LocationDescription } from "./LocationDescription";
+import { LocationType } from "./LocationType";
+import { Person } from "./Person";
+import { Status } from "./Status";
+import { LawCategory } from "./LawCategory";
 
 @Entity()
 export class Crime {
@@ -25,4 +31,28 @@ export class Crime {
 
   @Column({ type: "text" })
   description: string;
+
+  @ManyToOne(() => District, (district) => district.id)
+  district: District;
+
+  @ManyToOne(
+    () => LocationDescription,
+    (locationDescription) => locationDescription.id
+  )
+  locationDescription: LocationDescription;
+
+  @ManyToOne(() => LocationType, (locationType) => locationType.id)
+  locationType: LocationType;
+
+  @ManyToOne(() => Person, (person) => person.id)
+  suspectPerson: Person;
+
+  @ManyToOne(() => Person, (person) => person.id)
+  victimPerson: Person;
+
+  @ManyToOne(() => Status, (status) => status.id)
+  status: Status;
+
+  @ManyToOne(() => LawCategory, (lawCategory) => lawCategory.id)
+  lawCategory: LawCategory;
 }
