@@ -1,18 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  Timestamp,
-  UpdateDateColumn,
-} from "typeorm";
-import { GenderEnum } from "../enums/GenderEnum";
-import { Country } from "./Country";
-import { AthleteSport } from "./AtheleteSport";
-import { Participation } from "./Participation";
-import { Like } from "./Like";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Crime {

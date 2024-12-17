@@ -1,12 +1,8 @@
 import { AppDataSource } from "../database/data-source";
 import { User } from "../models/User";
 import { Role } from "../models/Role";
-import { Interest } from "../models/Interest";
-import { SportField } from "../models/SportField";
 const roleRepository = AppDataSource.getRepository(Role);
 const userRepository = AppDataSource.getRepository(User);
-const interestRepository = AppDataSource.getRepository(Interest);
-const sportFieldRepository = AppDataSource.getRepository(SportField);
 
 export interface PaginateUsers {
   users: User[];
