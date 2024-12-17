@@ -44,14 +44,14 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// router.get("/:id", async (req: Request, res: Response) => {
-//   try {
-//     const id = req.params.id;
-//     const athlete = await service.getOneAthleteById(id);
-//     res.status(200).send(athlete);
-//   } catch (error) {
-//     res.status(500).send({ error: "An error occurred" });
-//   }
-// });
+router.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const athlete = await service.getCrimeById(id);
+    res.status(200).send(athlete);
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred" });
+  }
+});
 
 export default router;
