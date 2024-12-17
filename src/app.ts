@@ -41,6 +41,7 @@ import adminRouter from "./routes/admin.routes";
 import userRouter from "./routes/user.routes";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { RoleEnum } from "./enums/RoleEnum";
+import { fetchData, client } from "./database/insertData";
 
 const app = express();
 
@@ -67,6 +68,13 @@ async function bootstrap(): Promise<void> {
     // Start Express server
     const server = app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
+    });
+    console.log("Import data...")
+    // Lancer la récupération et l'insertion des données
+    client.connect();
+    fetchData().finally(() => {
+      client.end();
+      console.log("Data imported with success")
     });
   } catch (error) {
     console.log("DB connexion failed");
