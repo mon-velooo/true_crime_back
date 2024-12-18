@@ -1,6 +1,9 @@
 import { AppDataSource } from "../database/data-source";
 import { Crime } from "../models/Crime";
-import { OffenceInfos } from "../types/stats/CrimeTypeStat";
+import {
+  NumberCrimesByHourInfos,
+  OffenceInfos,
+} from "../types/stats/CrimeTypeStat";
 
 const crimeRepository = AppDataSource.getRepository(Crime);
 
@@ -137,23 +140,32 @@ export const getTotalCrimeByRangeDate = async (
   }
 };
 
-// export const getTypeStats = async (): Promise<CrimeTypeStats[]> => {
-//   const stats = await crimeRepository
-//     .createQueryBuilder("crime")
-//     .select("crime.offenceId", "offenceId")
-//     .addSelect("offence.code", "offenceCode")
-//     .addSelect("offence.description", "offenceDescription")
-//     .addSelect("COUNT(crime.id)", "crimeCount")
-//     .innerJoin("crime.offence", "offence")
-//     .groupBy("crime.offenceId")
-//     .addGroupBy("offence.code")
-//     .addGroupBy("offence.description")
-//     .getRawMany();
-
-//   return stats.map((stat) => ({
-//     offenceId: stat.offenceId,
-//     offenceCode: stat.offenceCode,
-//     offenceDescription: stat.offenceDescription,
-//     crimeCount: parseInt(stat.crimeCount, 10),
-//   }));
-// };
+export const getCrimeCountGroupByHour = async (
+  rangeStartDate: string,
+  rangeEndDate: string
+): Promise<NumberCrimesByHourInfos[]> => {
+  try {
+    return await crimeRepository
+      .createQueryBuilder("crime")
+      .select([
+        "EXTRACT(HOUR FROM crime.start_time) as hour",
+        "COALESCE(COUNT(crime.id), 0) as crime_count",
+      ])
+      .where(
+        "crime.start_date >= :rangeStartDate AND crime.start_date <= :rangeEndDate",
+        { rangeStartDate, rangeEndDate }
+      )
+      .groupBy("hour")
+      .addOrderBy("hour", "ASC")
+      .getRawMany()
+      .then((crimes) => {
+        console.log("CRIMES", crimes);
+        return crimes.map((crime) => ({
+          hour: crime.hour,
+          crimeCount: parseInt(crime.crime_count, 10),
+        }));
+      });
+  } catch (error) {
+    return [];
+  }
+};

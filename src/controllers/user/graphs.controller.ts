@@ -73,4 +73,26 @@ router.get("/topCrimesCountByDistrict", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/crimesGroupByHourCount", async (req: Request, res: Response) => {
+  try {
+    const { rangeStartDate, rangeEndDate } = req.query;
+
+    // Valider que les deux dates sont fournies
+    if (!rangeStartDate || !rangeEndDate) {
+      return res
+        .status(400)
+        .json({ error: "rangeStartDate and rangeEndDate are required" });
+    }
+
+    const numberCrimesGroupByHour = await crimeService.getCrimeCountGroupByHour(
+      rangeStartDate as string,
+      rangeEndDate as string
+    );
+
+    res.status(200).send(numberCrimesGroupByHour);
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred" });
+  }
+});
+
 export default router;

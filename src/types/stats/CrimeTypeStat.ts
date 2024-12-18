@@ -23,3 +23,8 @@ export interface NumberCrimesByDistrictInfos {
   };
   crimeCount: number;
 }
+
+export interface NumberCrimesByHourInfos {
+  hour: number;
+  crimeCount: number;
+}
