@@ -6,32 +6,48 @@ const router = express.Router();
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const { longitude, lattitude, radius, lawCategory, startDate } = req.query;
+    const {
+      longitude,
+      lattitude,
+      zoomLevel,
+      lawCategory,
+      startDate,
+      rangeStartDate,
+      rangeEndDate,
+    } = req.query;
 
-    if (!longitude || !lattitude || !radius) {
+    const RADIUS_KM = 1;
+
+    if (!longitude || !lattitude || !zoomLevel) {
       return res.status(400).send({
-        error: "Params wanted not provided: longitude, lattitude, radius",
+        error: "Params wanted not provided: longitude, lattitude, zoomLevel",
       });
     }
 
     const longitudeFloat = parseFloat(longitude as string);
     const lattitudeFloat = parseFloat(lattitude as string);
-    const radiusFloat = parseFloat(radius as string);
+    const zoomLevelFloat = parseFloat(zoomLevel as string);
 
-    const radiusInMeters = radiusFloat * 1000;
+    // const radiusInMeters = RADIUS_KM * 1000;
+    const radiusInMeters = 40075016;
+    // Ajuster le rayon en fonction du niveau de zoom
+    const adjustedRadius =
+      radiusInMeters * (1 / Math.pow(2, zoomLevelFloat - 1));
 
     const filters = {
       lawCategory: lawCategory
         ? parseInt(lawCategory as string, 10)
         : undefined,
       startDate: startDate ? (startDate as string) : undefined,
+      rangeStartDate: rangeStartDate ? (rangeStartDate as string) : undefined,
+      rangeEndDate: rangeEndDate ? (rangeEndDate as string) : undefined,
       // Ajoutez d'autres filtres ici si nécessaire
     };
 
     const crimes = await service.getCrimes(
       longitudeFloat,
       lattitudeFloat,
-      radiusInMeters,
+      adjustedRadius,
       filters
     );
 
