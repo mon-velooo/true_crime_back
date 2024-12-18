@@ -7,7 +7,7 @@ export const client = new Client({
   port: 5432, // Remplacez par votre port PostgreSQL
   database: "db_true_crime", // Remplacez par le nom de votre base de données
   user: "user", // Remplacez par votre utilisateur
-  password: "password", // Remplacez par votre mot de passe
+  password: "azerty", // Remplacez par votre mot de passe
 });
 
 // Fonction pour vider toutes les tables

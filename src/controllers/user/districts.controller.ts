@@ -20,7 +20,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/:id", async (req: Request, res: Response) => {
+router.get("/getById/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const district = await service.getDistrictById(id);
@@ -36,11 +36,20 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/top10CrimesCount", async (req: Request, res: Response) => {
+router.get("/getTop10CrimesCount", async (req: Request, res: Response) => {
+  const numberCrimes = [];
+
   try {
     const districts = await service.getTop10DistrictsByCrimes();
 
-    res.status(200).send({ districts });
+    for (const district of districts) {
+      const name = district.name;
+      const number = await service.getCrimesCountById(district.id.toString());
+
+      numberCrimes.push({name, number});
+    }
+
+    res.status(200).send({ numberCrimes });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
