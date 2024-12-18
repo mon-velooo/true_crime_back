@@ -1,11 +1,12 @@
 import { LawCategory } from "../../models/LawCategory";
+import { Offence } from "../../models/Offence";
 
-export interface CrimeTypeInfos {
-  lawCategory: LawCategory;
+export interface OffenceInfos {
+  offence: Offence;
   totalCrimeType: number;
 }
 
 export type CrimeTypeStats = {
   totalCrime: number;
-  crimeTypes: CrimeTypeInfos[];
+  offencesStats: OffenceInfos[];
 };
