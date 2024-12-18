@@ -59,41 +59,11 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/kpis", async (req: Request, res: Response) => {
-  try {
-    const users = await service.getUsers();
-
-    const usersKpis: UsersKpis = {
-      totalUsers: users.length,
-      totalUsersActive: users.filter((user) => user.isConnected).length,
-      totalNewUsers: users.filter(
-        (user) => user.createdAt.getDate() === new Date().getDate()
-      ).length,
-    };
-
-    res.status(200).send(usersKpis);
-  } catch (error) {
-    res.status(500).send({ error: "An error occurred" });
-  }
-});
-
 router.get("/:id", async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     const users = await service.getUserDetail(id, isAdmin);
     res.status(200).send(users);
-  } catch (error) {
-    res.status(500).send({ error: "An error occurred" });
-  }
-});
-
-router.patch("/archive", async (req: Request, res: Response) => {
-  const ids: UsersId = req.body.usersId;
-  try {
-    for (const id of ids) {
-      await service.updateUser(id, { isArchived: true }, isAdmin);
-    }
-    res.status(200).send({ success: "Users successfuly archived" });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
