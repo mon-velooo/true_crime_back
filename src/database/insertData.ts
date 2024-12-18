@@ -212,7 +212,7 @@ export async function fetchData() {
   try {
     await truncateTables(); // Vider les tables avant d'insérer les nouvelles données
     const res = await axios.get(
-      "https://data.cityofnewyork.us/resource/5uac-w243.json?$limit=100000"
+      "https://data.cityofnewyork.us/resource/5uac-w243.json?$limit=500000"
     );
     for (const data of res.data) {
       /*       console.log(`Insertion du crime avec id: ${data.cmplnt_num}`);
