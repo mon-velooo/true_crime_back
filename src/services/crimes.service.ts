@@ -1,10 +1,8 @@
 import { AppDataSource } from "../database/data-source";
 import { Crime } from "../models/Crime";
-import { Offence } from "../models/Offence";
-import { CrimeTypeStats, OffenceInfos } from "../types/stats/CrimeTypeStat";
+import { OffenceInfos } from "../types/stats/CrimeTypeStat";
 
 const crimeRepository = AppDataSource.getRepository(Crime);
-const offenceRepository = AppDataSource.getRepository(Offence);
 
 export const getCrimes = async (
   longitude: number,
@@ -16,6 +14,7 @@ export const getCrimes = async (
     .createQueryBuilder("crime")
     .leftJoinAndSelect("crime.lawCategory", "lawCategory")
     .leftJoinAndSelect("crime.offence", "offence")
+    .leftJoinAndSelect("crime.status", "status")
     .select([
       "crime.id",
       "crime.latitude",
@@ -25,6 +24,8 @@ export const getCrimes = async (
       "crime.end_date",
       "lawCategory.id",
       "lawCategory.label",
+      "status.id",
+      "status.label",
       "offence.id",
       "offence.code",
       "offence.description",
@@ -80,6 +81,59 @@ export const getCrimeById = async (id: string): Promise<Crime | null> => {
       .getOneOrFail();
   } catch (error) {
     return null;
+  }
+};
+
+export const getCrimeCountByOffence = async (
+  rangeStartDate: string,
+  rangeEndDate: string
+): Promise<OffenceInfos[]> => {
+  try {
+    return await crimeRepository
+      .createQueryBuilder("crime")
+      .leftJoinAndSelect("crime.offence", "offence")
+      .select(["offence.id", "offence.code", "offence.description"])
+      .addSelect("COUNT(crime.id)", "crime_count")
+      .where(
+        "crime.start_date >= :rangeStartDate AND crime.start_date <= :rangeEndDate",
+        { rangeStartDate, rangeEndDate }
+      )
+      .groupBy("offence.id, offence.code, offence.description")
+      .addOrderBy("crime_count", "DESC")
+      .limit(6)
+      .getRawMany()
+      .then((crimes) => {
+        console.log("CRIMES", crimes);
+        return crimes.map((crime) => ({
+          offence: {
+            id: crime.offence_id,
+            code: crime.offence_code,
+            description: crime.offence_description,
+          },
+          crimeCount: parseInt(crime.crime_count, 10),
+        }));
+      });
+  } catch (error) {
+    return [];
+  }
+};
+
+export const getTotalCrimeByRangeDate = async (
+  rangeStartDate: string,
+  rangeEndDate: string
+): Promise<number> => {
+  try {
+    const count = await crimeRepository
+      .createQueryBuilder("crime")
+      .where(
+        "crime.start_date >= :rangeStartDate AND crime.start_date <= :rangeEndDate",
+        { rangeStartDate, rangeEndDate }
+      )
+      .getCount();
+
+    return count;
+  } catch (error) {
+    return 0;
   }
 };
 
