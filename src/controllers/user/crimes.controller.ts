@@ -51,7 +51,7 @@ router.get("/", async (req: Request, res: Response) => {
 
     // const { order } = extractSortsFromFilters(req, sortableKey);
 
-    res.status(200).send({ crimes });
+    res.status(200).send({ total: crimes.length, crimes });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }

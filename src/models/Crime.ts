@@ -5,6 +5,7 @@ import { LocationType } from "./LocationType";
 import { Person } from "./Person";
 import { Status } from "./Status";
 import { LawCategory } from "./LawCategory";
+import { Offence } from "./Offence";
 
 @Entity()
 export class Crime {
@@ -66,4 +67,7 @@ export class Crime {
 
   @ManyToOne(() => LawCategory, (lawCategory) => lawCategory.id)
   lawCategory: LawCategory;
+
+  @ManyToOne(() => Offence, (offence) => offence.id)
+  offence: Offence;
 }

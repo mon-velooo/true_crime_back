@@ -15,7 +15,7 @@ async function truncateTables() {
   try {
     /*     console.log("Vidage des tables...");
      */ await client.query(
-      'TRUNCATE TABLE "crime", "location_description", "district", "location_type", "age_group", "gender", "status", "law_category", "person" CASCADE'
+      'TRUNCATE TABLE "crime", "location_description", "district", "location_type", "age_group", "gender", "status", "law_category", "person", "offence" CASCADE'
     );
     /*     console.log("Toutes les tables ont été vidées.");
      */
@@ -108,8 +108,9 @@ async function insertCrime(data: any) {
     data.vic_age_group,
     data.vic_sex
   );
-  const statusId = await getOrInsert("status", "label", data.crm_atpt_cptd_cd);
   const lawCatId = await getOrInsert("law_category", "label", data.law_cat_cd);
+  const statusId = await getOrInsert("status", "label", data.crm_atpt_cptd_cd);
+  const offenceId = await getOrInsertOffence(data.pd_cd, data.pd_desc);
 
   // Vérification si latitude et longitude sont présentes
   if (latitude === null || longitude === null) {
@@ -122,8 +123,8 @@ async function insertCrime(data: any) {
 
   // Insérer les données dans la table Crime
   await client.query(
-    `INSERT INTO "crime"("id", "start_date", "start_time", "end_date", "end_time", "latitude", "longitude", "location", "description", "districtId", "locationDescriptionId", "locationTypeId", "suspectPersonId", "victimPersonId", "statusId", "lawCategoryId")
-       VALUES($1, $2, $3, $4, $5, $6, $7, ST_GeogFromText($8), $9, $10, $11, $12, $13, $14, $15, $16)`,
+    `INSERT INTO "crime"("id", "start_date", "start_time", "end_date", "end_time", "latitude", "longitude", "location", "description", "districtId", "locationDescriptionId", "locationTypeId", "suspectPersonId", "victimPersonId", "statusId", "lawCategoryId", "offenceId")
+       VALUES($1, $2, $3, $4, $5, $6, $7, ST_GeogFromText($8), $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
     [
       crimeId,
       startDate, // Assurez-vous que c'est une date au format YYYY-MM-DD
@@ -141,18 +142,47 @@ async function insertCrime(data: any) {
       victimPersonId,
       statusId,
       lawCatId,
+      offenceId,
     ]
   );
 }
 
 // Fonction pour insérer ou récupérer une personne dans la table Person
 // Fonction pour insérer ou récupérer une personne dans la table Person
+async function getOrInsertOffence(code: string, description: string) {
+  // Vérifier si l'âge ou le sexe sont manquants et les remplacer par une valeur par défaut
+  if (!code || code === "(null)") {
+    code = "UNKNOWN";
+  }
+  if (!description || description === "(null)") {
+    description = "UNKNOWN";
+  }
+
+  // Vérifier si l'infraction existe déjà (par combinaison code et description)
+  const res = await client.query(`SELECT id FROM "offence" WHERE "code" = $1`, [
+    code,
+  ]);
+
+  if (res.rows.length > 0) {
+    return res.rows[0].id; // Si l'infraction existe déjà, retourne l'ID
+  }
+
+  // Si l'infraction n'existe pas, l'insérer
+  const insertRes = await client.query(
+    `INSERT INTO "offence"("code", "description") VALUES($1, $2) RETURNING id`,
+    [code, description]
+  );
+  return insertRes.rows[0].id;
+}
+
+// Fonction pour insérer ou récupérer une personne dans la table Person
+// Fonction pour insérer ou récupérer une personne dans la table Person
 async function getOrInsertPerson(ageGroup: any, gender: any) {
   // Vérifier si l'âge ou le sexe sont manquants et les remplacer par une valeur par défaut
-  if (!ageGroup || ageGroup === "(null)") {
+  if (!ageGroup || ageGroup === "(null)" || ageGroup < 0 || ageGroup > 100) {
     ageGroup = "UNKNOWN";
   }
-  if (!gender || gender === "(null)") {
+  if (!gender || gender === "(null)" || (gender !== "M" && gender !== "F")) {
     gender = "U";
   }
 
