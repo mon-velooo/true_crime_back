@@ -56,23 +56,11 @@ export const getCrimes = async (
     });
   }
 
-  if (filters.rangeStartDate) {
-    queryBuilder.andWhere("crime.start_date >= :rangeStartDate", {
-      rangeStartDate: filters.rangeStartDate,
-    });
-  }
   if (filters.rangeEndDate) {
     queryBuilder.andWhere("crime.start_date <= :rangeEndDate", {
-      rangeStartDate: filters.rangeEndDate,
+      rangeEndDate: filters.rangeEndDate,
     });
   }
-
-  // Ajoutez d'autres filtres ici si nécessaire
-  // if (filters.someOtherFilter) {
-  //   queryBuilder.andWhere("crime.someField = :someValue", {
-  //     someValue: filters.someOtherFilter,
-  //   });
-  // }
 
   return await queryBuilder.getMany();
 };
