@@ -76,7 +76,6 @@ router.post("/signin", async (req: Request, res: Response) => {
       token,
       role: user.role.label,
       id: user.id,
-      username: user.firstname,
     });
   } catch (error: any) {
     res.status(404).send({ error: error.message });
@@ -115,7 +114,6 @@ router.patch(
       "id",
       "password",
       "createdAt",
-      "isConnected",
       "role",
     ]);
     try {

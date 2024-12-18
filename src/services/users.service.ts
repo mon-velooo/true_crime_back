@@ -9,18 +9,7 @@ export interface PaginateUsers {
   total: number;
 }
 
-const FIELDS_TO_SELECT: (keyof User)[] = [
-  "id",
-  "email",
-  "firstname",
-  "lastname",
-  "fullname",
-  "phone",
-  "isConnected",
-  "isArchived",
-  "createdAt",
-  "profileUrl",
-];
+const FIELDS_TO_SELECT: (keyof User)[] = ["id", "email", "createdAt"];
 
 const buildRelations = (isAdminRoute: boolean) => {
   const relations = ["interests.sportField", "likes"];
@@ -61,7 +50,7 @@ export const getPaginateUsers = async (
 ): Promise<PaginateUsers> => {
   const [users, total] = await userRepository.findAndCount({
     where,
-    relations: ["role", "interests", "likes"],
+    relations: ["role"],
     select: FIELDS_TO_SELECT,
     skip,
     take,
