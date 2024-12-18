@@ -9,6 +9,7 @@ export class District {
   @Column({ type: "varchar", length: 255, unique: true })
   name: string;
 
-  @OneToMany(() => Crime, (crime) => crime.id, {})
+  // Correction ici : la relation doit pointer sur 'district' dans Crime
+  @OneToMany(() => Crime, (crime) => crime.district, { cascade: true })
   crimes: Crime[];
 }

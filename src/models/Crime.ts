@@ -41,7 +41,8 @@ export class Crime {
   @Column({ type: "text" })
   description: string;
 
-  @ManyToOne(() => District, (district) => district.id, { nullable: true })
+  // Correction ici : la relation doit pointer sur 'district' dans Crime
+  @ManyToOne(() => District, (district) => district.crimes, { nullable: true })
   district: District;
 
   @ManyToOne(
