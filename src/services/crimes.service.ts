@@ -9,7 +9,7 @@ const offenceRepository = AppDataSource.getRepository(Offence);
 export const getCrimes = async (
   longitude: number,
   latitude: number,
-  radiusInMeters: number,
+  adjustedRadius: number,
   filters: any
 ): Promise<Crime[]> => {
   const queryBuilder = crimeRepository
@@ -30,11 +30,11 @@ export const getCrimes = async (
       "offence.description",
     ])
     .where(
-      "ST_DWithin(crime.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radiusInMeters)",
+      "ST_DWithin(crime.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :adjustedRadius)",
       {
         longitude,
         latitude,
-        radiusInMeters,
+        adjustedRadius,
       }
     );
 
@@ -47,6 +47,23 @@ export const getCrimes = async (
   if (filters.startDate) {
     queryBuilder.andWhere("crime.start_date = :startDate", {
       startDate: filters.startDate,
+    });
+  }
+
+  if (filters.rangeStartDate) {
+    queryBuilder.andWhere("crime.start_date >= :rangeStartDate", {
+      rangeStartDate: filters.rangeStartDate,
+    });
+  }
+
+  if (filters.rangeStartDate) {
+    queryBuilder.andWhere("crime.start_date >= :rangeStartDate", {
+      rangeStartDate: filters.rangeStartDate,
+    });
+  }
+  if (filters.rangeEndDate) {
+    queryBuilder.andWhere("crime.start_date <= :rangeEndDate", {
+      rangeStartDate: filters.rangeEndDate,
     });
   }
 
