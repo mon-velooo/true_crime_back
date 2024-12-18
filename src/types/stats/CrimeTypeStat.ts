@@ -28,3 +28,8 @@ export interface NumberCrimesByHourInfos {
   hour: number;
   crimeCount: number;
 }
+
+export interface NumberCrimesByHourStats {
+  stats: NumberCrimesByHourInfos[];
+  average: number;
+}
