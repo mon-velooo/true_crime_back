@@ -7,10 +7,7 @@ const router = express.Router();
 router.get("/", async (req: Request, res: Response) => {
   try {
     const where: any = {};
-    const select: (keyof District)[] = [
-      "id",
-      "name"
-    ];
+    const select: (keyof District)[] = ["id", "name"];
 
     const districts = await service.getDistrict(where, select);
 
@@ -36,23 +33,23 @@ router.get("/getById/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/getTop10CrimesCount", async (req: Request, res: Response) => {
-  const numberCrimes = [];
+// router.get("/getTop10CrimesCount", async (req: Request, res: Response) => {
+//   const numberCrimes = [];
 
-  try {
-    const districts = await service.getTop10DistrictsByCrimes();
+//   try {
+//     const districts = await service.getTop10DistrictsByCrimes();
 
-    for (const district of districts) {
-      const name = district.name;
-      const number = await service.getCrimesCountById(district.id.toString());
+//     for (const district of districts) {
+//       const name = district.name;
+//       const number = await service.getCrimesCountById(district.id.toString());
 
-      numberCrimes.push({name, number});
-    }
+//       numberCrimes.push({name, number});
+//     }
 
-    res.status(200).send({ numberCrimes });
-  } catch (error) {
-    res.status(500).send({ error: "An error occurred" });
-  }
-});
+//     res.status(200).send({ numberCrimes });
+//   } catch (error) {
+//     res.status(500).send({ error: "An error occurred" });
+//   }
+// });
 
 export default router;

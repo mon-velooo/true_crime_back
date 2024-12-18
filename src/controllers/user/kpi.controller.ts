@@ -1,60 +1,9 @@
 import { Request, Response, Router } from "express";
 import { AppDataSource } from "../../database/data-source";
 import { Crime } from "../../models/Crime";
-import { Offence } from "../../models/Offence";
-import { Status } from "../../models/Status";
-import { District } from "../../models/District";
-import { LawCategory } from "../../models/LawCategory";
-import { CrimeTypeStats } from "../../types/stats/CrimeTypeStat";
 import { Between } from "typeorm";
 
-import * as crimeService from "../../services/crimes.service";
-
 const router = Router();
-
-router.get("/offencesCrimesCount", async (req: Request, res: Response) => {
-  try {
-    const { rangeStartDate, rangeEndDate } = req.query;
-
-    // Valider que les deux dates sont fournies
-    if (!rangeStartDate || !rangeEndDate) {
-      return res
-        .status(400)
-        .json({ error: "rangeStartDate and rangeEndDate are required" });
-    }
-
-    const offencesStats = await crimeService.getCrimeCountByOffence(
-      rangeStartDate as string,
-      rangeEndDate as string
-    );
-
-    const totalCrime = await crimeService.getTotalCrimeByRangeDate(
-      rangeStartDate as string,
-      rangeEndDate as string
-    );
-
-    // get number of crimes total
-    const totalCrimesOther =
-      totalCrime -
-      offencesStats.reduce((acc, current) => acc + current.crimeCount, 0);
-
-    offencesStats.push({
-      offence: { id: -1, code: "OTHER", description: "Other" },
-      crimeCount: totalCrimesOther,
-    });
-
-    // Construire la réponse finale
-    const response: CrimeTypeStats = {
-      totalCrime,
-      offencesStats,
-    };
-
-    res.status(200).json(response);
-  } catch (error) {
-    console.error("Error fetching crimes stats:", error);
-    res.status(500).send({ error: "An error occurred" });
-  }
-});
 
 router.get("/getKpisByRange", async (req: Request, res: Response) => {
   try {
