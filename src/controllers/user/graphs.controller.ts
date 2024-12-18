@@ -1,5 +1,8 @@
 import { Request, Response, Router } from "express";
-import { CrimeTypeStats } from "../../types/stats/CrimeTypeStat";
+import {
+  CrimeTypeStats,
+  NumberCrimesByHourStats,
+} from "../../types/stats/CrimeTypeStat";
 
 import * as crimeService from "../../services/crimes.service";
 import * as districService from "../../services/districts.service";
@@ -68,6 +71,45 @@ router.get("/topCrimesCountByDistrict", async (req: Request, res: Response) => {
       );
 
     res.status(200).send(numberCrimesByDistrict);
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred" });
+  }
+});
+
+router.get("/crimesGroupByHourCount", async (req: Request, res: Response) => {
+  try {
+    const { rangeStartDate, rangeEndDate } = req.query;
+
+    // Valider que les deux dates sont fournies
+    if (!rangeStartDate || !rangeEndDate) {
+      return res
+        .status(400)
+        .json({ error: "rangeStartDate and rangeEndDate are required" });
+    }
+
+    const numberCrimesGroupByHour = await crimeService.getCrimeCountGroupByHour(
+      rangeStartDate as string,
+      rangeEndDate as string
+    );
+
+    // Calculer la moyenne
+    const totalCrimes = numberCrimesGroupByHour.reduce(
+      (acc, current) => acc + current.crimeCount,
+      0
+    );
+
+    const NUMBER_OF_HOURS = 24;
+
+    // arrondi à la dizaine la plus proche
+    const average = Math.floor(totalCrimes * (1 / NUMBER_OF_HOURS));
+
+    // Construire la réponse finale
+    const response: NumberCrimesByHourStats = {
+      stats: numberCrimesGroupByHour,
+      average,
+    };
+
+    res.status(200).send(response);
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
