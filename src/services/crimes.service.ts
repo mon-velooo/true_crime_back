@@ -1,10 +1,12 @@
 import { AppDataSource } from "../database/data-source";
 import { Crime } from "../models/Crime";
+import { Offence } from "../models/Offence";
+import { CrimeTypeStats, OffenceInfos } from "../types/stats/CrimeTypeStat";
 
 const crimeRepository = AppDataSource.getRepository(Crime);
+const offenceRepository = AppDataSource.getRepository(Offence);
 
 export const getCrimes = async (
-  select: (keyof Crime)[],
   longitude: number,
   latitude: number,
   radiusInMeters: number,
@@ -12,7 +14,21 @@ export const getCrimes = async (
 ): Promise<Crime[]> => {
   const queryBuilder = crimeRepository
     .createQueryBuilder("crime")
-    .select(select.map((field) => `crime.${field}`))
+    .leftJoinAndSelect("crime.lawCategory", "lawCategory")
+    .leftJoinAndSelect("crime.offence", "offence")
+    .select([
+      "crime.id",
+      "crime.latitude",
+      "crime.longitude",
+      "crime.start_date",
+      "crime.description",
+      "crime.end_date",
+      "lawCategory.id",
+      "lawCategory.label",
+      "offence.id",
+      "offence.code",
+      "offence.description",
+    ])
     .where(
       "ST_DWithin(crime.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radiusInMeters)",
       {
@@ -25,6 +41,12 @@ export const getCrimes = async (
   if (filters.lawCategory) {
     queryBuilder.andWhere("crime.lawCategoryId = :lawCategoryId", {
       lawCategoryId: filters.lawCategory,
+    });
+  }
+
+  if (filters.startDate) {
+    queryBuilder.andWhere("crime.start_date = :startDate", {
+      startDate: filters.startDate,
     });
   }
 
@@ -56,27 +78,23 @@ export const getCrimeById = async (id: string): Promise<Crime | null> => {
   }
 };
 
-// export const getTypeStats = async (): Promise<CrimeTypeStats> => {
-//   const crimesTypeStats = await crimeRepository
+// export const getTypeStats = async (): Promise<CrimeTypeStats[]> => {
+//   const stats = await crimeRepository
 //     .createQueryBuilder("crime")
-//     .leftJoin(
-//       LawCategory,
-//       "lc",
-//       "lc.crimes = crime.id AND pcb.checked_by = :userId AND pcb.date = :date",
-//       { userId, date }
-//     )
-//     .select([
-//       "passion.id as id",
-//       "passion.label as label",
-//       "passion.icon_path as icon_path",
-//       "CASE WHEN pcb.id IS NOT NULL THEN 1 ELSE 0 END as is_checked",
-//     ])
-//     .orderBy("passion.id", "ASC")
-//     .getRawMany()
-//     .then((results) =>
-//       results.map((result) => ({
-//         ...result,
-//         is_checked: result.is_checked === "1",
-//       }))
-//     );
+//     .select("crime.offenceId", "offenceId")
+//     .addSelect("offence.code", "offenceCode")
+//     .addSelect("offence.description", "offenceDescription")
+//     .addSelect("COUNT(crime.id)", "crimeCount")
+//     .innerJoin("crime.offence", "offence")
+//     .groupBy("crime.offenceId")
+//     .addGroupBy("offence.code")
+//     .addGroupBy("offence.description")
+//     .getRawMany();
+
+//   return stats.map((stat) => ({
+//     offenceId: stat.offenceId,
+//     offenceCode: stat.offenceCode,
+//     offenceDescription: stat.offenceDescription,
+//     crimeCount: parseInt(stat.crimeCount, 10),
+//   }));
 // };

@@ -6,14 +6,7 @@ const router = express.Router();
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const select: (keyof Crime)[] = [
-      "id",
-      "latitude",
-      "longitude",
-      "start_date",
-      "end_date",
-    ];
-    const { longitude, lattitude, radius, lawCategory } = req.query;
+    const { longitude, lattitude, radius, lawCategory, startDate } = req.query;
 
     if (!longitude || !lattitude || !radius) {
       return res.status(400).send({
@@ -31,11 +24,11 @@ router.get("/", async (req: Request, res: Response) => {
       lawCategory: lawCategory
         ? parseInt(lawCategory as string, 10)
         : undefined,
+      startDate: startDate ? (startDate as string) : undefined,
       // Ajoutez d'autres filtres ici si nécessaire
     };
 
     const crimes = await service.getCrimes(
-      select,
       longitudeFloat,
       lattitudeFloat,
       radiusInMeters,
@@ -73,7 +66,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// router.get("/typeStats", async (req: Request, res: Response) => {
+// router.get("/offenceStats", async (req: Request, res: Response) => {
 //   try {
 //     const criminalTypeStats = await service.getTypeStats();
 //     res.status(200).send(criminalTypeStats);
