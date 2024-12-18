@@ -149,7 +149,7 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
         "AGGRAVATED HARASSMENT 2",
         "ASSAULT 2,1, UNCLASSIFIED"
       ],
-      otherOffenses: [
+      /* otherOffenses: [
         "SODOMY 3",
         "ROBBERY, BEGIN AS SHOPLIFTING",
         "LEAVING SCENE-ACCIDENT-PERSONA",
@@ -166,7 +166,7 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
         "BURGLARY, COMMERCIAL, NIGHT",
         "CRIMINAL POSSESSION WEAPON",
         "MISCHIEF, CRIMINAL, UNCL 2ND"
-      ]
+      ] */
     };
     
     
@@ -178,7 +178,7 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
     let totalDrugOffenses = 0;
     let totalPropertyOffenses = 0;
     let totalPersonOffenses = 0;
-    let totalOtherOffenses = 0;
+    /* let totalOtherOffenses = 0; */
 
     crimesInRange.forEach((crime) => {
       const lawCategoryLabel = crime.lawCategory?.label?.toUpperCase();
@@ -210,9 +210,9 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
               case "personOffenses":
                 totalPersonOffenses += 1;
                 break;
-              case "otherOffenses":
+              /* case "otherOffenses":
                 totalOtherOffenses += 1;
-                break;
+                break; */
             }
           }
         });
@@ -223,10 +223,10 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
     const totalCrime = crimesInRange.length;
 
     // Calcul des pourcentages
-    const percentDrugOffenses = totalCrime ? (totalDrugOffenses / totalCrime) * 100 : 0;
-    const percentPropertyOffenses = totalCrime ? (totalPropertyOffenses / totalCrime) * 100 : 0;
-    const percentPersonOffenses = totalCrime ? (totalPersonOffenses / totalCrime) * 100 : 0;
-    const percentOtherOffenses = totalCrime ? (totalOtherOffenses / totalCrime) * 100 : 0;
+    const percentDrugOffenses = totalCrime ? Math.round((totalDrugOffenses / totalCrime) * 100) : 0;
+    const percentPropertyOffenses = totalCrime ? Math.round((totalPropertyOffenses / totalCrime) * 100) : 0;
+    const percentPersonOffenses = totalCrime ? Math.round((totalPersonOffenses / totalCrime) * 100) : 0;
+    /* const percentOtherOffenses = totalCrime ? Math.round((totalOtherOffenses / totalCrime) * 100) : 0;  */   
 
     // Construction de la réponse finale avec KPIs
     const response = {
@@ -237,7 +237,7 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
         percentDrugOffenses: percentDrugOffenses,
         percentPropertyOffenses: percentPropertyOffenses,
         percentPersonOffenses: percentPersonOffenses,
-        percentOtherOffenses: percentOtherOffenses,
+        /* percentOtherOffenses: percentOtherOffenses, */
       },
     };
 
