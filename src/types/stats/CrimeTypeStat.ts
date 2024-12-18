@@ -1,3 +1,4 @@
+import { District } from "../../models/District";
 import { LawCategory } from "../../models/LawCategory";
 import { Offence } from "../../models/Offence";
 
@@ -14,3 +15,11 @@ export type CrimeTypeStats = {
   totalCrime: number;
   offencesStats: OffenceInfos[];
 };
+
+export interface NumberCrimesByDistrictInfos {
+  district: {
+    id: District["id"];
+    name: District["name"];
+  };
+  crimeCount: number;
+}
