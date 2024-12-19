@@ -2,6 +2,7 @@ import { AppDataSource } from "../database/data-source";
 import { District } from "../models/District";
 import { Crime } from "../models/Crime";
 import { NumberCrimesByDistrictInfos } from "../types/stats/CrimeTypeStat";
+import { capitalizeFirstLetter } from "../utils/stringFormat";
 const districtRepository = AppDataSource.getRepository(District);
 const crimeRepository = AppDataSource.getRepository(Crime);
 
@@ -53,7 +54,7 @@ export const getTop10DistrictsByCrimes = async (
     return districts.map((district) => ({
       district: {
         id: district.id,
-        name: district.name,
+        name: capitalizeFirstLetter(district.name),
       },
       crimeCount: parseInt(district.crime_count, 10),
     }));
