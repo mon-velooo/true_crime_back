@@ -76,43 +76,58 @@ router.get("/topCrimesCountByDistrict", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/crimesGroupByHourCount", async (req: Request, res: Response) => {
-  try {
-    const { rangeStartDate, rangeEndDate } = req.query;
+router.get(
+  "/crimesGroupByPairHourCount",
+  async (req: Request, res: Response) => {
+    try {
+      const { rangeStartDate, rangeEndDate } = req.query;
 
-    // Valider que les deux dates sont fournies
-    if (!rangeStartDate || !rangeEndDate) {
-      return res
-        .status(400)
-        .json({ error: "rangeStartDate and rangeEndDate are required" });
+      // Valider que les deux dates sont fournies
+      if (!rangeStartDate || !rangeEndDate) {
+        return res
+          .status(400)
+          .json({ error: "rangeStartDate and rangeEndDate are required" });
+      }
+
+      const numberCrimesGroupByTwiceHour =
+        await crimeService.getCrimeCountGroupByHour(
+          rangeStartDate as string,
+          rangeEndDate as string
+        );
+
+      // Calculer la moyenne
+      const totalCrimes = numberCrimesGroupByTwiceHour.reduce(
+        (acc, current) => acc + current.crimeCount,
+        0
+      );
+
+      // Nombre paire d'heures dans une journée
+      const NUMBER_OF_HOURS_PAIR = 12;
+
+      // arrondi à la dizaine la plus proche
+      const average = Math.floor(totalCrimes * (1 / NUMBER_OF_HOURS_PAIR));
+
+      let averagePastTime = 0;
+
+      // calculate median past time
+      for (let i = 0; i < numberCrimesGroupByTwiceHour.length; i++) {
+        if (numberCrimesGroupByTwiceHour[i].crimeCount > average) {
+          averagePastTime++;
+        }
+      }
+
+      // Construire la réponse finale
+      const response: NumberCrimesByHourStats = {
+        stats: numberCrimesGroupByTwiceHour,
+        average,
+        averagePastTime,
+      };
+
+      res.status(200).send(response);
+    } catch (error) {
+      res.status(500).send({ error: "An error occurred" });
     }
-
-    const numberCrimesGroupByHour = await crimeService.getCrimeCountGroupByHour(
-      rangeStartDate as string,
-      rangeEndDate as string
-    );
-
-    // Calculer la moyenne
-    const totalCrimes = numberCrimesGroupByHour.reduce(
-      (acc, current) => acc + current.crimeCount,
-      0
-    );
-
-    const NUMBER_OF_HOURS = 24;
-
-    // arrondi à la dizaine la plus proche
-    const average = Math.floor(totalCrimes * (1 / NUMBER_OF_HOURS));
-
-    // Construire la réponse finale
-    const response: NumberCrimesByHourStats = {
-      stats: numberCrimesGroupByHour,
-      average,
-    };
-
-    res.status(200).send(response);
-  } catch (error) {
-    res.status(500).send({ error: "An error occurred" });
   }
-});
+);
 
 export default router;
