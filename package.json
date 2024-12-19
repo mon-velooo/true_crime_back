@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "ts-node-dev src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "keywords": [],
   "author": "",

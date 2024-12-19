@@ -3,6 +3,9 @@ import { AppDataSource } from "../../database/data-source";
 import { Crime } from "../../models/Crime";
 import { Between } from "typeorm";
 
+import * as crimeService from "../../services/crimes.service";
+import * as residentService from "../../services/residentsNumberByYears.service";
+
 const router = Router();
 
 router.get("/getKpisByRange", async (req: Request, res: Response) => {
@@ -184,6 +187,74 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching major crime stats:", error);
     res.status(500).json({ error: "An error occurred" });
+  }
+});
+
+router.get("/securityFeeling", async (req: Request, res: Response) => {
+  try {
+    const { rangeStartDate, rangeEndDate } = req.query;
+
+    // Valider que les deux dates sont fournies
+    if (!rangeStartDate || !rangeEndDate) {
+      return res
+        .status(400)
+        .json({ error: "rangeStartDate and rangeEndDate are required" });
+    }
+
+    const start = new Date(rangeStartDate as string);
+    const end = new Date(rangeEndDate as string);
+
+    const totalCrimes = await crimeService.getTotalCrimeByRangeDate(
+      rangeStartDate as string,
+      rangeEndDate as string
+    );
+
+    // get total day of the range
+    const totalDays =
+      Math.abs(
+        Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      ) + 1;
+
+    console.log("totalCrimes", totalCrimes);
+    console.log("totalDays", totalDays);
+
+    // get average totalcrime per day
+    const averageTotalCrimePerDay = totalCrimes / totalDays;
+
+    console.log("averageTotalCrimePerDay", averageTotalCrimePerDay);
+
+    // get average year of the range
+    const year = Math.round(
+      (start.getFullYear() + end.getFullYear()) / 2
+    ).toString();
+
+    // get total resident at the year
+    const residentNumberAtYear = await residentService.residentsNumberByYears(
+      year
+    );
+
+    if (!residentNumberAtYear) {
+      return res.status(404).send({ error: "No data found" });
+    }
+
+    // Calcul du taux de criminalité pour 100 000 habitants
+    const crimeRate =
+      (averageTotalCrimePerDay / residentNumberAtYear.residents_number) *
+      100000;
+
+    console.log("crimeRate", crimeRate);
+
+    // Calcul du sentiment de sécurité
+    // On considère qu'un taux de 100 crimes/100k habitants donne un sentiment de 0
+    const MAX_CRIME_RATE = 5;
+    const securityFeeling = Math.max(
+      0,
+      Math.min(100, 100 * (1 - crimeRate / MAX_CRIME_RATE))
+    );
+
+    res.status(200).send({ securityFeeling });
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred" });
   }
 });
 
