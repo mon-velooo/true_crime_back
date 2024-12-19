@@ -33,3 +33,9 @@ export interface NumberCrimesByHourStats {
   stats: NumberCrimesByHourInfos[];
   average: number;
 }
+
+export interface Kpi {
+  title: string;
+  value: number;
+  type: "number" | "percent";
+}
