@@ -50,7 +50,6 @@ export const getTop10DistrictsByCrimes = async (
     .limit(10);
 
   return await queryBuilder.getRawMany().then((districts) => {
-    console.log("DISTRICTS", districts);
     return districts.map((district) => ({
       district: {
         id: district.id,

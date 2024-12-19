@@ -106,7 +106,6 @@ export const getCrimeCountByOffence = async (
       .limit(6)
       .getRawMany()
       .then((crimes) => {
-        console.log("CRIMES", crimes);
         return crimes.map((crime) => ({
           offence: {
             id: crime.offence_id,
@@ -159,7 +158,6 @@ export const getCrimeCountGroupByHour = async (
       .addOrderBy("hour", "ASC")
       .getRawMany()
       .then((crimes) => {
-        console.log("CRIMES", crimes);
         return crimes.map((crime) => ({
           hour: `${crime.hour}h`,
           crimeCount: parseInt(crime.crime_count, 10),

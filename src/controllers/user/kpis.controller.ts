@@ -265,8 +265,8 @@ router.get("/securityFeeling", async (req: Request, res: Response) => {
       100000;
 
     // Calcul du sentiment de sécurité
-    // On considère qu'un taux de 100 crimes/100k habitants donne un sentiment de 0
-    const MAX_CRIME_RATE = 5;
+    // On considère qu'un taux de 75 crimes/100k habitants donne un sentiment de 0
+    const MAX_CRIME_RATE = 100;
     const securityFeeling = Math.max(
       0,
       Math.min(100, 100 * (1 - crimeRate / MAX_CRIME_RATE))
