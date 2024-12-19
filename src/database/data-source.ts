@@ -11,6 +11,7 @@ import { Status } from "../models/Status";
 import { AgeGroup } from "../models/AgeGroup";
 import { Crime } from "../models/Crime";
 import { Offence } from "../models/Offence";
+import { ResidentsNumberByYears } from "../models/ResidentsNumberByYears";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -31,6 +32,7 @@ export const AppDataSource = new DataSource({
     LawCategory,
     LocationDescription,
     LocationType,
+    ResidentsNumberByYears,
     Role,
     Status,
     User,
