@@ -174,32 +174,32 @@ router.get("/", async (req: Request, res: Response) => {
     // Construction de la réponse finale avec KPIs
     const response: Kpi[] = [
       {
-        title: "Nombre de crimes",
+        title: "Crimes count",
         value: totalFelony,
         type: "number",
       },
       {
-        title: "Nombre de violations",
+        title: "Violation number",
         value: totalViolation,
         type: "number",
       },
       {
-        title: "Nombre de délits",
+        title: "Misedmeanor count",
         value: totalMisdemeanor,
         type: "number",
       },
       {
-        title: "Délits liés à la drogue",
+        title: "Drug offenses",
         value: percentDrugOffenses,
         type: "percent",
       },
       {
-        title: "Délits contre les biens",
+        title: "Property offenses",
         value: percentPropertyOffenses,
         type: "percent",
       },
       {
-        title: "Délits contre les personnes",
+        title: "Person offenses",
         value: percentPersonOffenses,
         type: "percent",
       },
