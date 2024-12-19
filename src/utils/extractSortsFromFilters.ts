@@ -101,8 +101,6 @@ function convertValidSortsArrayToOrder(sortsArray: Sort[]): {
   for (const sort of sortsArray) {
     addKeyValueStringToObject(order, sort.key, sort.order);
   }
-
-  console.log("ORDER", order);
   return order;
 }
 
