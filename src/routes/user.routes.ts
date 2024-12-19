@@ -4,6 +4,7 @@ import usersRoutes from "../controllers/user/users.controller";
 import districtsRoutes from "../controllers/user/districts.controller";
 import kpiRoutes from "../controllers/user/kpi.controller";
 import graphsRoutes from "../controllers/user/graphs.controller";
+import reportingsRoutes from "../controllers/user/reportings.controller";
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/crimes", crimesRoutes);
 router.use("/districts", districtsRoutes);
 router.use("/kpi", kpiRoutes);
 router.use("/graphs", graphsRoutes);
+router.use("/reportings", reportingsRoutes);
 
 export default router;
