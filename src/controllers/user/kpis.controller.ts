@@ -264,8 +264,6 @@ router.get("/securityFeeling", async (req: Request, res: Response) => {
       (averageTotalCrimePerDay / residentNumberAtYear.residents_number) *
       100000;
 
-    console.log("crimeRate", crimeRate);
-
     // Calcul du sentiment de sécurité
     // On considère qu'un taux de 100 crimes/100k habitants donne un sentiment de 0
     const MAX_CRIME_RATE = 5;
@@ -273,8 +271,18 @@ router.get("/securityFeeling", async (req: Request, res: Response) => {
       0,
       Math.min(100, 100 * (1 - crimeRate / MAX_CRIME_RATE))
     );
+    const securityFeelingRound = Number(securityFeeling.toFixed(0));
 
-    res.status(200).send({ securityFeeling });
+    const insecurityFeeling = 100 - securityFeelingRound;
+
+    //Round data
+    const crimeRateRound = Number(crimeRate.toFixed(2));
+
+    res.status(200).send({
+      crimeRate: crimeRateRound,
+      securityFeeling: securityFeelingRound,
+      insecurityFeeling: insecurityFeeling,
+    });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
