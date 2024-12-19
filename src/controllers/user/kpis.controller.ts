@@ -5,10 +5,11 @@ import { Between } from "typeorm";
 
 import * as crimeService from "../../services/crimes.service";
 import * as residentService from "../../services/residentsNumberByYears.service";
+import { Kpi } from "../../types/stats/CrimeTypeStat";
 
 const router = Router();
 
-router.get("/getKpisByRange", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { rangeStartDate, rangeEndDate } = req.query;
 
@@ -171,17 +172,38 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
     /* const percentOtherOffenses = totalCrime ? Math.round((totalOtherOffenses / totalCrime) * 100) : 0;  */
 
     // Construction de la réponse finale avec KPIs
-    const response = {
-      kpis: {
-        countFelony: totalFelony,
-        countViolation: totalViolation,
-        countMisdemeanor: totalMisdemeanor,
-        percentDrugOffenses: percentDrugOffenses,
-        percentPropertyOffenses: percentPropertyOffenses,
-        percentPersonOffenses: percentPersonOffenses,
-        /* percentOtherOffenses: percentOtherOffenses, */
+    const response: Kpi[] = [
+      {
+        title: "Nombre de crimes",
+        value: totalFelony,
+        type: "number",
       },
-    };
+      {
+        title: "Nombre de violations",
+        value: totalViolation,
+        type: "number",
+      },
+      {
+        title: "Nombre de délits",
+        value: totalMisdemeanor,
+        type: "number",
+      },
+      {
+        title: "Délits liés à la drogue",
+        value: percentDrugOffenses,
+        type: "percent",
+      },
+      {
+        title: "Délits contre les biens",
+        value: percentPropertyOffenses,
+        type: "percent",
+      },
+      {
+        title: "Délits contre les personnes",
+        value: percentPersonOffenses,
+        type: "percent",
+      },
+    ];
 
     res.status(200).json(response);
   } catch (error) {
