@@ -148,7 +148,7 @@ export const getCrimeCountGroupByHour = async (
     return await crimeRepository
       .createQueryBuilder("crime")
       .select([
-        "EXTRACT(HOUR FROM crime.start_time) as hour",
+        "FLOOR(EXTRACT(HOUR FROM crime.start_time)/2)*2 as hour",
         "COALESCE(COUNT(crime.id), 0) as crime_count",
       ])
       .where(
@@ -161,7 +161,7 @@ export const getCrimeCountGroupByHour = async (
       .then((crimes) => {
         console.log("CRIMES", crimes);
         return crimes.map((crime) => ({
-          hour: crime.hour,
+          hour: `${crime.hour}h`,
           crimeCount: parseInt(crime.crime_count, 10),
         }));
       });

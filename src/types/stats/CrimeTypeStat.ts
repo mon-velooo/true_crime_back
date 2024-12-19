@@ -25,13 +25,14 @@ export interface NumberCrimesByDistrictInfos {
 }
 
 export interface NumberCrimesByHourInfos {
-  hour: number;
+  hour: string;
   crimeCount: number;
 }
 
 export interface NumberCrimesByHourStats {
   stats: NumberCrimesByHourInfos[];
   average: number;
+  averagePastTime: number;
 }
 
 export interface Kpi {
