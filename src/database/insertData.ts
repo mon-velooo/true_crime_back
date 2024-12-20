@@ -7,7 +7,7 @@ export const client = new Client({
   port: 5432, // Remplacez par votre port PostgreSQL
   database: "db_true_crime", // Remplacez par le nom de votre base de données
   user: "user", // Remplacez par votre utilisateur
-  password: "azerty", // Remplacez par votre mot de passe
+  password: "password", // Remplacez par votre mot de passe
 });
 
 // Fonction pour vider toutes les tables
@@ -211,16 +211,34 @@ async function getOrInsertPerson(ageGroup: any, gender: any) {
 export async function fetchData() {
   try {
     await truncateTables(); // Vider les tables avant d'insérer les nouvelles données
-    const res = await axios.get(
-      "https://data.cityofnewyork.us/resource/5uac-w243.json?$limit=500000"
-    );
-    for (const data of res.data) {
-      /*       console.log(`Insertion du crime avec id: ${data.cmplnt_num}`);
-       */ await insertCrime(data);
+
+    let offset = 0;
+    const limit = 50000;
+
+    while (true) {
+      const res = await axios.get(
+        `https://data.cityofnewyork.us/resource/5uac-w243.json?$limit=${limit}&$offset=${offset}`
+      );
+
+      if (res.data.length === 0) {
+        // Si aucune donnée n'est retournée, on arrête la boucle
+        break;
+      }
+
+      console.log(`Fetching data with offset: ${offset}`);
+      
+      // Insérer les données dans la base de données
+      for (const data of res.data) {
+        await insertCrime(data);
+      }
+
+      // Incrémenter l'offset pour la prochaine itération
+      offset += limit;
     }
-    /*     console.log('Toutes les données ont été insérées.');
-     */
+
+    console.log("Toutes les données ont été insérées.");
   } catch (error) {
     console.error("Erreur lors de la récupération des données:", error);
   }
 }
+

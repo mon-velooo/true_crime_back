@@ -16,8 +16,6 @@ router.get("/", async (req: Request, res: Response) => {
       rangeEndDate,
     } = req.query;
 
-    const RADIUS_KM = 1;
-
     if (!longitude || !lattitude || !zoomLevel) {
       return res.status(400).send({
         error: "Params wanted not provided: longitude, lattitude, zoomLevel",
@@ -28,11 +26,17 @@ router.get("/", async (req: Request, res: Response) => {
     const lattitudeFloat = parseFloat(lattitude as string);
     const zoomLevelFloat = parseFloat(zoomLevel as string);
 
-    // const radiusInMeters = RADIUS_KM * 1000;
-    const radiusInMeters = 40075016;
-    // Ajuster le rayon en fonction du niveau de zoom
-    const adjustedRadius =
-      radiusInMeters * (1 / Math.pow(2, zoomLevelFloat - 1));
+    const BASE_RADIUS = 3000; // 2km rayon de base
+    const MAX_RADIUS = 25000; // 15km rayon maximum
+    const MIN_ZOOM = 12; // Niveau de zoom minimum
+    const ZOOM_FACTOR = 2; // Facteur de progression
+
+    // Calcul du rayon inversé
+    const zoomDiff = Math.max(MIN_ZOOM - zoomLevelFloat, -10); // Limite la réduction
+    const adjustedRadius = Math.min(
+      BASE_RADIUS * Math.pow(ZOOM_FACTOR, zoomDiff),
+      MAX_RADIUS
+    );
 
     const filters = {
       lawCategory: lawCategory
@@ -81,14 +85,5 @@ router.get("/:id", async (req: Request, res: Response) => {
     res.status(500).send({ error: "An error occurred" });
   }
 });
-
-// router.get("/offenceStats", async (req: Request, res: Response) => {
-//   try {
-//     const criminalTypeStats = await service.getTypeStats();
-//     res.status(200).send(criminalTypeStats);
-//   } catch (error) {
-//     res.status(500).send({ error: "An error occurred" });
-//   }
-// });
 
 export default router;

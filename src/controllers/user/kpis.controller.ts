@@ -5,10 +5,11 @@ import { Between } from "typeorm";
 
 import * as crimeService from "../../services/crimes.service";
 import * as residentService from "../../services/residentsNumberByYears.service";
+import { Kpi } from "../../types/stats/CrimeTypeStat";
 
 const router = Router();
 
-router.get("/getKpisByRange", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { rangeStartDate, rangeEndDate } = req.query;
 
@@ -171,17 +172,38 @@ router.get("/getKpisByRange", async (req: Request, res: Response) => {
     /* const percentOtherOffenses = totalCrime ? Math.round((totalOtherOffenses / totalCrime) * 100) : 0;  */
 
     // Construction de la réponse finale avec KPIs
-    const response = {
-      kpis: {
-        countFelony: totalFelony,
-        countViolation: totalViolation,
-        countMisdemeanor: totalMisdemeanor,
-        percentDrugOffenses: percentDrugOffenses,
-        percentPropertyOffenses: percentPropertyOffenses,
-        percentPersonOffenses: percentPersonOffenses,
-        /* percentOtherOffenses: percentOtherOffenses, */
+    const response: Kpi[] = [
+      {
+        title: "Crimes count",
+        value: totalFelony,
+        type: "number",
       },
-    };
+      {
+        title: "Violation number",
+        value: totalViolation,
+        type: "number",
+      },
+      {
+        title: "Misedmeanor count",
+        value: totalMisdemeanor,
+        type: "number",
+      },
+      {
+        title: "Drug offenses",
+        value: percentDrugOffenses,
+        type: "percent",
+      },
+      {
+        title: "Property offenses",
+        value: percentPropertyOffenses,
+        type: "percent",
+      },
+      {
+        title: "Person offenses",
+        value: percentPersonOffenses,
+        type: "percent",
+      },
+    ];
 
     res.status(200).json(response);
   } catch (error) {
@@ -242,17 +264,25 @@ router.get("/securityFeeling", async (req: Request, res: Response) => {
       (averageTotalCrimePerDay / residentNumberAtYear.residents_number) *
       100000;
 
-    console.log("crimeRate", crimeRate);
-
     // Calcul du sentiment de sécurité
-    // On considère qu'un taux de 100 crimes/100k habitants donne un sentiment de 0
-    const MAX_CRIME_RATE = 5;
+    // On considère qu'un taux de 75 crimes/100k habitants donne un sentiment de 0
+    const MAX_CRIME_RATE = 100;
     const securityFeeling = Math.max(
       0,
       Math.min(100, 100 * (1 - crimeRate / MAX_CRIME_RATE))
     );
+    const securityFeelingRound = Number(securityFeeling.toFixed(0));
 
-    res.status(200).send({ securityFeeling });
+    const insecurityFeeling = 100 - securityFeelingRound;
+
+    //Round data
+    const crimeRateRound = Number(crimeRate.toFixed(2));
+
+    res.status(200).send({
+      crimeRate: crimeRateRound,
+      securityFeeling: securityFeelingRound,
+      insecurityFeeling: insecurityFeeling,
+    });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }

@@ -11,6 +11,12 @@ export interface OffenceInfos {
   crimeCount: number;
 }
 
+export interface AgeGroupInfos {
+  ageGroup: string;
+  suspectsCount: number;
+  victimsCount: number;
+}
+
 export type CrimeTypeStats = {
   totalCrime: number;
   offencesStats: OffenceInfos[];
@@ -25,11 +31,18 @@ export interface NumberCrimesByDistrictInfos {
 }
 
 export interface NumberCrimesByHourInfos {
-  hour: number;
+  hour: string;
   crimeCount: number;
 }
 
 export interface NumberCrimesByHourStats {
   stats: NumberCrimesByHourInfos[];
   average: number;
+  averagePastTime: number;
+}
+
+export interface Kpi {
+  title: string;
+  value: number;
+  type: "number" | "percent";
 }
