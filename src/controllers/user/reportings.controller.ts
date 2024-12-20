@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import * as service from "../../services/reportings.service";
+import { io } from "../../app"; // Importez io depuis app.ts
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    // Parse et valide latitude/degilnotu;
+    // Parse et valide latitude/longitude
     const latitudeFloat = parseFloat(req.body.latitude);
     const longitudeFloat = parseFloat(req.body.longitude);
 
@@ -48,10 +49,13 @@ router.post("/", async (req: Request, res: Response) => {
     );
 
     if (!reporting) {
-      throw new Error("Error where creating report");
+      throw new Error("Error while creating report");
     }
 
-    res.status(200).send({ success: "Reporting create with success" });
+    // Émettez un événement WebSocket à tous les clients connectés
+    io.emit("newReporting", reporting);
+
+    res.status(200).send({ success: "Reporting created with success" });
   } catch (error) {
     res.status(500).send({ error: "An error occurred" });
   }
