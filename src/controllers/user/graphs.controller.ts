@@ -130,4 +130,29 @@ router.get(
   }
 );
 
+router.get("/ageGroup", async (req: Request, res: Response) => {
+  try {
+    const { rangeStartDate, rangeEndDate } = req.query;
+
+    // Valider que les deux dates sont fournies
+    if (!rangeStartDate || !rangeEndDate) {
+      return res
+        .status(400)
+        .json({ error: "rangeStartDate and rangeEndDate are required" });
+    }
+
+    const ageGroupStats = await crimeService.getAgeGroupeCrime(
+      rangeStartDate as string,
+      rangeEndDate as string
+    );
+
+    console.log("AGE GROUP", ageGroupStats);
+
+    res.status(200).json(ageGroupStats);
+  } catch (error) {
+    console.error("Error fetching crimes stats:", error);
+    res.status(500).send({ error: "An error occurred" });
+  }
+});
+
 export default router;
