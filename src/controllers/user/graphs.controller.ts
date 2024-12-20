@@ -130,6 +130,43 @@ router.get(
   }
 );
 
+router.get("/crimesGroupByDayCount", async (req: Request, res: Response) => {
+  try {
+    const { rangeStartDate, rangeEndDate } = req.query;
+
+    if (!rangeStartDate || !rangeEndDate) {
+      return res
+        .status(400)
+        .json({ error: "rangeStartDate and rangeEndDate are required" });
+    }
+
+    const crimesPerDay = await crimeService.getCrimeCountByDay(
+      rangeStartDate as string,
+      rangeEndDate as string
+    );
+
+    // Calculate number of days between dates
+    const startDate = new Date(rangeStartDate as string);
+    const endDate = new Date(rangeEndDate as string);
+    const daysDiff =
+      Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)
+      ) + 1;
+
+    const total = crimesPerDay.reduce((acc, curr) => acc + curr.crimeCount, 0);
+    const average = Math.round(total / daysDiff);
+
+    res.status(200).send({
+      stats: crimesPerDay,
+      total,
+      average,
+      numberOfDays: daysDiff,
+    });
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred" });
+  }
+});
+
 router.get("/ageGroup", async (req: Request, res: Response) => {
   try {
     const { rangeStartDate, rangeEndDate } = req.query;

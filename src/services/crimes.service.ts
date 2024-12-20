@@ -169,6 +169,35 @@ export const getCrimeCountGroupByHour = async (
   }
 };
 
+export const getCrimeCountByDay = async (
+  rangeStartDate: string,
+  rangeEndDate: string
+): Promise<{ date: string; crimeCount: number }[]> => {
+  try {
+    return await crimeRepository
+      .createQueryBuilder("crime")
+      .select([
+        "DATE(crime.start_date) as date",
+        "COUNT(crime.id) as crime_count"
+      ])
+      .where(
+        "crime.start_date >= :rangeStartDate AND crime.start_date <= :rangeEndDate",
+        { rangeStartDate, rangeEndDate }
+      )
+      .groupBy("date")
+      .orderBy("date", "ASC")
+      .getRawMany()
+      .then((crimes) => {
+        return crimes.map((crime) => ({
+          date: crime.date,
+          crimeCount: parseInt(crime.crime_count, 10),
+        }));
+      });
+  } catch (error) {
+    return [];
+  }
+};
+
 export const getAgeGroupeCrime = async (
   rangeStartDate: string,
   rangeEndDate: string
