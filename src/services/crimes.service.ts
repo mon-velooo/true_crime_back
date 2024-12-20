@@ -1,6 +1,7 @@
 import { AppDataSource } from "../database/data-source";
 import { Crime } from "../models/Crime";
 import {
+  AgeGroupInfos,
   NumberCrimesByHourInfos,
   OffenceInfos,
 } from "../types/stats/CrimeTypeStat";
@@ -161,6 +162,57 @@ export const getCrimeCountGroupByHour = async (
         return crimes.map((crime) => ({
           hour: `${crime.hour}h`,
           crimeCount: parseInt(crime.crime_count, 10),
+        }));
+      });
+  } catch (error) {
+    return [];
+  }
+};
+
+export const getAgeGroupeCrime = async (
+  rangeStartDate: string,
+  rangeEndDate: string
+): Promise<AgeGroupInfos[]> => {
+  try {
+    return await crimeRepository
+      .query(
+        `
+          SELECT 
+          COALESCE(suspect_data.range, victim_data.range) AS age_group,
+          COALESCE(suspect_data.suspect_count, 0) AS suspect_count,
+          COALESCE(victim_data.victim_count, 0) AS victim_count
+          FROM (
+          SELECT suspect_age."range" AS range, COUNT(suspect.id) AS suspect_count
+          FROM crime
+          LEFT JOIN person suspect ON crime."suspectPersonId" = suspect.id
+          LEFT JOIN age_group suspect_age ON suspect."ageGroupId" = suspect_age.id
+          WHERE crime.start_date >= $1
+          AND crime.start_date <= $2
+          GROUP BY suspect_age."range"
+          ) suspect_data
+          FULL OUTER JOIN (
+          SELECT 
+          victim_age."range" AS range,
+          COUNT(victim.id) AS victim_count
+          FROM crime
+          LEFT JOIN person victim ON crime."victimPersonId" = victim.id
+          LEFT JOIN age_group victim_age ON victim."ageGroupId" = victim_age.id
+          WHERE 
+          crime.start_date >= $1
+          AND crime.start_date <= $2
+          GROUP BY 
+          victim_age."range"
+          ) victim_data
+          ON suspect_data.range = victim_data.range;
+        `,
+        [rangeStartDate, rangeEndDate]
+      )
+      .then((crimes) => {
+        console.log("CRIMES", crimes);
+        return crimes.map((crime: any) => ({
+          ageGroup: crime.age_group,
+          suspectsCount: parseInt(crime.suspect_count, 10),
+          victimsCount: parseInt(crime.victim_count, 10),
         }));
       });
   } catch (error) {

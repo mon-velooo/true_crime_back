@@ -11,6 +11,12 @@ export interface OffenceInfos {
   crimeCount: number;
 }
 
+export interface AgeGroupInfos {
+  ageGroup: string;
+  suspectsCount: number;
+  victimsCount: number;
+}
+
 export type CrimeTypeStats = {
   totalCrime: number;
   offencesStats: OffenceInfos[];
