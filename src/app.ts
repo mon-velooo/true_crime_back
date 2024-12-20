@@ -32,7 +32,6 @@
 //     io.emit("getUsersWhenOneCreatedOrUpdate");
 //   });
 // });
-
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
@@ -43,8 +42,12 @@ import { authMiddleware } from "./middlewares/auth.middleware";
 import { RoleEnum } from "./enums/RoleEnum";
 import { fetchData, client } from "./database/insertData";
 import { Crime } from "./models/Crime";
+import { Server } from "socket.io";
+import http from "http";
 
 const app = express();
+const server = http.createServer(app); // Crée un serveur HTTP avec Express
+const io = new Server(server); // Initialise Socket.IO avec le serveur HTTP
 
 app.use(cors());
 app.use(express.json());
@@ -73,10 +76,21 @@ async function bootstrap(): Promise<void> {
       await AppDataSource.runMigrations();
       console.info("Migrations passed!");
     });
-    // Start Express server
-    const server = app.listen(port, () => {
+
+    // Configurer les WebSockets
+    io.on("connection", (socket) => {
+      console.log("Client connected to WebSocket");
+
+      socket.on("disconnect", () => {
+        console.log("Client disconnected");
+      });
+    });
+
+    // Start HTTP server
+    server.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
+
     // Vérifier si la base de données est déjà peuplée
     const crimeCount = await AppDataSource.getRepository(Crime).count();
     if (crimeCount === 0) {
@@ -91,10 +105,13 @@ async function bootstrap(): Promise<void> {
       console.log("Data already exists, skipping import.");
     }
   } catch (error) {
-    console.log("DB connexion failed");
+    console.log("DB connection failed");
     console.log(error);
   }
 }
+
+// Exporter io pour l'utiliser dans les contrôleurs
+export { io };
 
 // Call the bootstrap function to start the application
 bootstrap();
