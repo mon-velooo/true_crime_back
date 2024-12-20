@@ -32,6 +32,7 @@
 //     io.emit("getUsersWhenOneCreatedOrUpdate");
 //   });
 // });
+
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
@@ -47,9 +48,15 @@ import http from "http";
 
 const app = express();
 const server = http.createServer(app); // Crée un serveur HTTP avec Express
-const io = new Server(server); // Initialise Socket.IO avec le serveur HTTP
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // Permet les connexions WebSocket depuis le front-end (localhost:3000)
+    methods: ["GET", "POST"], // Méthodes autorisées
+    allowedHeaders: ["Content-Type"], // En-têtes autorisés
+  },
+});
 
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000" })); // CORS pour les requêtes HTTP standard
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 const port = process.env.PORT || 5001;
